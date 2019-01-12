@@ -1,9 +1,103 @@
 {% extends 'webview/base.html' %}
-
+{% load static %}
 {% block title %}Stock Analysis{% endblock %}
 
 {% block body %}
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab');
+@import url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css);
 
+.profile {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  padding: 2px;
+  border-radius: 10px;
+  font-family: 'Roboto Slab', serif;
+  text-align: center;
+  box-shadow: 1px 1px 9px -3px;
+}
+
+.p {
+  border: 2px #e8e8e8;
+  border-style: dotted;
+  border-radius: 10px;
+  padding: 25px;
+}
+.name {
+  font-size: 15pt;
+}
+
+.role {
+  font-size: 10pt;
+  padding: 4pt;
+}
+
+.profile .avatar img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50px;
+  margin: 10px;
+  border: 1px solid #9876ff;
+  animation: colors 2s infinite;
+}
+
+@keyframes colors {
+  from {
+    border-color: #76b9ff;
+  }
+  25% {
+    border-color: #76ffdf;
+  }
+  50% {
+    border-color: #78ff76;
+  }
+  75% {
+    border-color: #ffdb76;
+  }
+  to {
+    border-color: #76b9ff;
+  }
+}
+
+.socials {
+  display: flex;
+  margin-top: 4pt;
+  color: black;
+  justify-content: space-evenly;
+}
+
+.socials a, .socials a:visited {
+  color: black;
+}
+
+.playground {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.childDetails{
+
+}
+.childNews{
+
+}
+.detailContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+      justify-content: space-evenly;
+    padding: 5%;
+    align-items: center;
+
+}
+</style>
+
+    <script>
+    var CURRENT_SYMBOL = "AAPL";
+    </script>
 <section>
 
 
@@ -22,7 +116,7 @@
                             <div class="form-row">
                                 <div class="form-group col-auto">
                                     <label for="stock">Stock</label>
-                                <select class="selectpicker custom-select-lg mb-3" data-show-subtext="true" data-live-search="true" id="stock" title="Choose">
+                                <select class="selectpicker custom-select-lg mb-3" data-show-subtext="true" data-live-search="true" id="stock" title="Choose" onchange="changeStockSymbol()">
                                 <!-- <option disabled="disabled" selected="selected">Choose Stock</option> -->
                                     {% for data in stocks %}
                                 <option data-subtext="{{ data.name }}">{{ data.symbol }}</option>
@@ -34,7 +128,107 @@
                                  <button class="btn btn-success " id="submit">okay, go!</button>
                         </form>
 
-<div id="plotly-div"></div>
+
+
+{#<div class = "detailContainer">#}
+{#    <div class="childDetails">#}
+{#        <h3 align="center">Company details</h3><br>#}
+{#        <div class="playground ">#}
+{##}
+{#          <div class="profile">#}
+{#            <div class="p">#}
+{#            <div class="avatar">#}
+{#              <img src="https://storage.googleapis.com/iex/api/logos/AAPL.png"/>#}
+{#            </div>#}
+{#            <div class="name">#}
+{#              Apple Inc.#}
+{#            </div>#}
+{#            <div class="role">#}
+{#              CEO : Tim Cook<br>fbnbnolfr#}
+{#            </div>#}
+{#            <div class="socials">#}
+{#                <a href="https://www.instagram.com/dproni/"><i class="fa fa-globe"></i></a>#}
+{##}
+{#            </div>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#<div class="news-holder cf childNews">#}
+{#<h3 align="center">Latest News</h3> <br>#}
+{#    <ul class="news-headlines">#}
+{#      <li class="selected">100 red bicycles stolen from local bike store</li>#}
+{#      <li>New leash laws in effect for floppy-eared dogs</li>#}
+{#      <li>Insider: Can palm trees be saved?</li>#}
+{#      <li>Fresh recipes to titillate the taste buds</li>#}
+{#      <li>Truck inspections under way for the metropolitan area</li>#}
+{#      <li>Are the beaches safe for swimming this year?</li>#}
+{#      <!-- li.highlight gets inserted here -->#}
+{#    </ul>#}
+{##}
+{#    <div class="news-preview">#}
+{##}
+{#      <div class="news-content top-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news1.jpg">#}
+{#        <p><a href="#">100 red bicycles stolen from local bike store</a></p>#}
+{##}
+{#        <p>A hundred red bicycles were stolen from under our noses yesterday, and nobody knows what went wrong.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#      <div class="news-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news2.jpg">#}
+{#        <p><a href="#">New leash laws in effect for floppy-eared dogs</a></p>#}
+{##}
+{#        <p>Ears on dogs can be a tricky thing. Find out more about this amazing story and why these dogs are a nuisance.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#      <div class="news-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news3.jpg">#}
+{#        <p><a href="#">Insider: Can palm trees be saved?</a></p>#}
+{##}
+{#        <p>Ah, the palm tree. It feeds us, it shades us, it does whatever we ask. We should think about it more deeply.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#      <div class="news-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news4.jpg">#}
+{#        <p><a href="#">Fresh recipes to titillate the taste buds</a></p>#}
+{##}
+{#        <p>Food is great. These recipes will make you appreciate food as if it were even greater than great. It will be super great.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#      <div class="news-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news5.jpg">#}
+{#        <p><a href="#">Truck inspections under way for the metropolitan area</a></p>#}
+{##}
+{#        <p>The Sherrif's department has put out an APB on these trucks. You know, this is the kind of thing that only happens in small towns.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#      <div class="news-content">#}
+{#        <img src="http://cdn.impressivewebs.com/news6.jpg">#}
+{#        <p><a href="#">Are the beaches safe for swimming this year?</a></p>#}
+{##}
+{#        <p>Giant orange pedal boats have been spotted at various beaches. In this report we tell you some ridiculous precautions to take.</p>#}
+{#      </div><!-- .news-content -->#}
+{##}
+{#    </div><!-- .news-preview -->#}
+{##}
+{#  </div><!-- .news-holder -->#}
+{##}
+{#</div>#}
+<div class = "child">
+    <!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container" style="display: none" id="realtimeChartDiv">
+    <h3 align="center">Realtime Data</h3>
+  <div id="tradingview_f75a9"></div>
+
+
+
+</div>
+<!-- TradingView Widget END -->
+</div>
+
+<div id="plotly-div" ></div>
 </section>
 
     <script>
@@ -81,7 +275,7 @@
                           sClose.push(jsondata["historicData"][i]["close"]);
                           sHigh.push(jsondata["historicData"][i]["high"]);
                           sLow.push(jsondata["historicData"][i]["low"]);
-                          sVolume.push(jsondata["historicData"][i]["volume"]);
+                          sVolume.push("volume: " + jsondata["historicData"][i]["volume"]);
                       }
 
                       var trace1 = {
@@ -94,7 +288,8 @@
                           increasing: {line: {color: '#17BECF'}},
 
                           line: {color: 'rgba(31,119,180,1)'},
-                          volume: sVolume,
+                          customData: sVolume,
+                          text : sVolume ,
                           low: sLow,
                           open: sOpen,
                           type: 'candlestick',
@@ -105,6 +300,14 @@
                       var data = [trace1];
 
                       var layout = {
+                          title: {
+                                    text:'Historic data from Database',
+                                    font: {
+                                      family: 'Courier New, monospace',
+                                      size: 20
+                                    }
+
+                                  },
                           dragmode: 'zoom',
                           margin: {
                               r: 10,
@@ -113,6 +316,7 @@
                               l: 60
                           },
                           showlegend: false,
+                          text : "hi",
                           xaxis: {
                               autorange: true,
                               domain: [0, 1],
@@ -150,5 +354,39 @@
         e.preventDefault();
      // avoid to execute the actual submit of the form.
 });
+
+     function changeStockSymbol() {
+         document.getElementById("realtimeChartDiv").style.display = "block";
+         CURRENT_SYMBOL = document.getElementById("stock").value;
+         console.log(CURRENT_SYMBOL);
+           new TradingView.widget(
+  {
+ "width" : 980,
+ "height" : 480,
+  "symbol": CURRENT_SYMBOL,
+  "interval": "D",
+  "timezone": "Asia/Kolkata",
+  "theme": "Light",
+  "style": "1",
+  "locale": "in",
+  "toolbar_bg": "rgba(255, 255, 255, 1)",
+  "enable_publishing": false,
+  "withdateranges": true,
+  "allow_symbol_change": true,
+  "hotlist": true,
+  "news": [
+    "stocktwits",
+    "headlines"
+  ],
+  "show_popup_button": true,
+  "popup_width": "1000",
+  "popup_height": "650",
+  "container_id": "tradingview_f75a9"
+}
+  );
+     }
     </script>
+        <script  src="{% static 'webview/js/news.js' %}"></script>
+
+
 {% endblock %}

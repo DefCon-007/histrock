@@ -22,12 +22,11 @@ config.read(BASE_DIR + "/config.ini")
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'qveo@veio+_9v2epw6!@qri+q56z@$6d-3+h_4z14f+x1citf^'
+SECRET_KEY = config.get("core", "SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+DEBUG = config.getboolean("core", "DEBUG")
+ALLOWED_HOSTS = config.get("core", "ALLOWED_HOSTS").split(",")
 
 
 # Application definition
@@ -128,3 +127,4 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')

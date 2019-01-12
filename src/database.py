@@ -32,6 +32,13 @@ def getStockBySymbol(sym) :
         return None
 
 
+def getAllSotcks():
+    stockList = []
+    data =  Stock.objects.all()
+    for d in data :
+        stockList.append({"name" : d.name, "symbol" : d.symbol})
+    return stockList
+
 def getStockDataByStockAndDate(stock, start, end):
     """
     Returns a queryset matching provided stock, start date(inclusive), end date(exclusive)

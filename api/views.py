@@ -8,6 +8,7 @@ from src.serializer import StockHistoricDataSerializer, StockSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Avg, Max, Min
 
 # Create your views here.
 @csrf_exempt
@@ -23,11 +24,14 @@ def getStockData(request) :
         startDate = request.query_params.get("start", None)
         endDate = request.query_params.get("end", None)
         stock = db.getStockBySymbol(stockSymbol)
+
         if stock :
             stockData = db.getStockDataByStockAndDate(stock=stock, start=startDate, end=endDate)
+            maxMinDate = (stockData.aggregate(Max('date'), Min('date')))
+            print(maxMinDate)
             serializedStockData = StockSerializer(stock)
             serializedStockHistoricData = StockHistoricDataSerializer(stockData, many=True)
-            return Response({"stock": serializedStockData.data, "historicData": serializedStockHistoricData.data})
+            return Response({"stock": serializedStockData.data, "historicData": serializedStockHistoricData.data, "maxDate" : maxMinDate["date__max"]})
         else :
             #Invalid stock symbol sent
             return Response("Invalid Stock Symbol", status=status.HTTP_404_NOT_FOUND)

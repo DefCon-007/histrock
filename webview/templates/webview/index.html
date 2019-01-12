@@ -1,0 +1,154 @@
+{% extends 'webview/base.html' %}
+
+{% block title %}Stock Analysis{% endblock %}
+
+{% block body %}
+
+<section>
+
+
+
+                        <form id="stockChartForm" style="margin: 5%">
+                            <div class="form-row">
+                                    <div class="form-group col-auto">
+                                      <label for="startdate">Start Date</label>
+                                      <input type="date" class="form-control" id="startdate">
+                                    </div>
+                                    <div class="form-group col-auto">
+                                      <label for="enddate">End Date</label>
+                                      <input type="date" class="form-control" id="enddate">
+                                    </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-auto">
+                                    <label for="stock">Stock</label>
+                                <select class="selectpicker custom-select-lg mb-3" data-show-subtext="true" data-live-search="true" id="stock" title="Choose">
+                                <!-- <option disabled="disabled" selected="selected">Choose Stock</option> -->
+                                    {% for data in stocks %}
+                                <option data-subtext="{{ data.name }}">{{ data.symbol }}</option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+
+                                 <button class="btn btn-success " id="submit">okay, go!</button>
+                        </form>
+
+<div id="plotly-div"></div>
+</section>
+
+    <script>
+     $("#stockChartForm").submit(function(e) {
+    var url = "{% url 'stockdata' %}" + "?start=" + $('#startdate').val() + "&end=" + $('#enddate').val()+"&stockSymbol=" + $('#stock').val();
+    console.log($('#stock').val());
+    console.log($('#startdate').val());
+    console.log($('#enddate').val())
+    swal({
+         title: 'Processing. Please wait!'
+    });
+    swal.showLoading();
+
+        var data = null;
+
+        var xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+
+        xhr.addEventListener("readystatechange", function () {
+          if (this.readyState === 4) {
+              swal.close();
+              if(this.status == 200) {
+                  var jsondata = JSON.parse(this.responseText);
+                  sDate = [];
+                  sOpen = [];
+                  sClose = [];
+                  sHigh = [];
+                  sLow = [];
+                  sVolume = [];
+
+                  if (jsondata["historicData"].length == 0) {
+                      swal({
+                    title: "Error",
+                    type : 'error',
+                    text : "No records found in the specified timeline"
+                })
+                  }
+                  else {
+
+
+                      for (i = 0; i < jsondata["historicData"].length; i++) {
+                          sDate.push(jsondata["historicData"][i]["date"]);
+                          sOpen.push(jsondata["historicData"][i]["open"]);
+                          sClose.push(jsondata["historicData"][i]["close"]);
+                          sHigh.push(jsondata["historicData"][i]["high"]);
+                          sLow.push(jsondata["historicData"][i]["low"]);
+                          sVolume.push(jsondata["historicData"][i]["volume"]);
+                      }
+
+                      var trace1 = {
+
+                          x: sDate,
+                          close: sClose,
+                          decreasing: {line: {color: '#7F7F7F'}},
+
+                          high: sHigh,
+                          increasing: {line: {color: '#17BECF'}},
+
+                          line: {color: 'rgba(31,119,180,1)'},
+                          volume: sVolume,
+                          low: sLow,
+                          open: sOpen,
+                          type: 'candlestick',
+                          xaxis: 'x',
+                          yaxis: 'y'
+                      };
+
+                      var data = [trace1];
+
+                      var layout = {
+                          dragmode: 'zoom',
+                          margin: {
+                              r: 10,
+                              t: 25,
+                              b: 40,
+                              l: 60
+                          },
+                          showlegend: false,
+                          xaxis: {
+                              autorange: true,
+                              domain: [0, 1],
+
+                              rangeslider: {},
+                              title: 'Date',
+                              type: 'date'
+                          },
+                          yaxis: {
+                              autorange: true,
+                              domain: [0, 1],
+
+                              type: 'linear'
+                          }
+                      };
+
+                      Plotly.plot('plotly-div', data, layout);
+                  }
+              }
+              else {
+                swal({
+                    title: "Error",
+                    type : 'error',
+                    text : this.responseText
+                })
+              }
+          }
+        });
+
+        xhr.open("GET", url);
+        xhr.setRequestHeader("cache-control", "no-cache");
+        xhr.setRequestHeader("X-Requested-With","XMLHttpRequest");
+
+        xhr.send(data);
+        e.preventDefault();
+     // avoid to execute the actual submit of the form.
+});
+    </script>
+{% endblock %}
